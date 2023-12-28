@@ -188,7 +188,7 @@ public class NLeaves extends BlockLeaves {
         if (meta == 0) {
             return 255;
         }
-        return super.getLightOpacity(world, x, y, z); // this.getLightOpacity(world, x, y, z);//lightOpacity[blockID];
+        return super.getLightOpacity(world, x, y, z);
     }
 
     @Override

@@ -100,7 +100,7 @@ public class WillowGen extends WorldGenerator {
 
                                 if ((Math.abs(i2) != k1 || Math.abs(l2) != k1 || random.nextInt(2) != 0 && j1 != 0)
                                         && block.canBeReplacedByLeaves(world, l1, j2, k2)) {
-                                    this.setBlockAndNotifyAdequately(world, l1, j2, k2, NContent.floraLeavesNoColor, 3);
+                                    world.setBlock(l1, j2, k2, NContent.floraLeavesNoColor, 3, 2);
                                 }
                             }
                         }

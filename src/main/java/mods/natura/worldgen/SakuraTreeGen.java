@@ -120,6 +120,7 @@ public class SakuraTreeGen extends WorldGenAbstractTree {
         byte b2 = otherCoordPairs[p_150529_5_ + 3];
         int[] aint = new int[] { x, y, z };
         int[] aint1 = new int[] { 0, 0, 0 };
+        boolean[] coordinatesToChange = new boolean[l * 2 + 1];
         int i1 = -l;
         int j1 = -l;
 
@@ -134,21 +135,24 @@ public class SakuraTreeGen extends WorldGenAbstractTree {
                     ++j1;
                 } else {
                     aint1[b2] = aint[b2] + j1;
-                    Block block1 = this.worldObj.getBlock(aint1[0], aint1[1], aint1[2]);
+                    coordinatesToChange[l + i1] = true;
+                    ++j1;
+                }
+            }
+        }
 
-                    if (!block1.isAir(worldObj, aint1[0], aint1[1], aint1[2])
-                            && !block1.isLeaves(worldObj, aint1[0], aint1[1], aint1[2])) {
-                        ++j1;
-                    } else {
-                        this.setBlockAndNotifyAdequately(
-                                this.worldObj,
-                                aint1[0],
-                                aint1[1],
-                                aint1[2],
-                                block,
-                                metaLeaves);
-                        ++j1;
-                    }
+        for (int i = 0; i < coordinatesToChange.length; i++) {
+            if (coordinatesToChange[i]) {
+                int coordinateX = aint[0] + otherCoordPairs[p_150529_5_] * i;
+                int coordinateY = aint[1];
+                int coordinateZ = aint[2] + otherCoordPairs[p_150529_5_ + 3] * i;
+
+                Block block1 = this.worldObj.getBlock(coordinateX, coordinateY, coordinateZ);
+                boolean isAir = block1.isAir(worldObj, coordinateX, coordinateY, coordinateZ);
+                boolean isLeaves = block1.isLeaves(worldObj, coordinateX, coordinateY, coordinateZ);
+
+                if (!isAir && !isLeaves) {
+                    worldObj.setBlock(coordinateX, coordinateY, coordinateZ, block, metaLeaves, 2);
                 }
             }
         }
