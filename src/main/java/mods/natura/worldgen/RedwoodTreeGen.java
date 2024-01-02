@@ -1,15 +1,14 @@
 package mods.natura.worldgen;
 
-import java.util.Random;
-
+import mods.natura.common.NContent;
+import mods.natura.common.PHNatura;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
-import mods.natura.common.NContent;
-import mods.natura.common.PHNatura;
+import java.util.Random;
 
 public class RedwoodTreeGen extends WorldGenerator {
 
@@ -1714,15 +1713,17 @@ public class RedwoodTreeGen extends WorldGenerator {
     }
 
     void generateLeafNodeList() {
-        height = (int) ((double) heightLimit * heightAttenuation);
+        height = (int) (heightLimit * heightAttenuation);
         if (height >= heightLimit) {
             height = heightLimit - 1;
         }
-        int i = (int) (1.3819999999999999D + Math.pow((field_872_k * (double) heightLimit) / 13D, 2D));
+
+        int i = (int) (1.3819999999999999D + Math.pow((field_872_k * heightLimit) / 13D, 2D));
         if (i < 1) {
             i = 1;
         }
-        int ai[][] = new int[i * heightLimit][4];
+
+        int[][] ai = new int[i * heightLimit][4];
         int j = (basePos[1] + heightLimit) - leafDistanceLimit;
         int k = 1;
         int l = basePos[1] + height;
@@ -1731,75 +1732,69 @@ public class RedwoodTreeGen extends WorldGenerator {
         ai[0][1] = j;
         ai[0][2] = basePos[2];
         ai[0][3] = l;
-        j--;
+
         while (i1 >= 0) {
-            int j1 = 0;
             float f = func_528_a(i1);
-            if (f < 0.0F) {
-                j--;
-                i1--;
-            } else {
+            if (f >= 0.0F) {
                 double d = 0.5D;
-                for (; j1 < i; j1++) {
-                    double d1 = field_873_j * ((double) f * ((double) rand.nextFloat() + 0.32800000000000001D));
-                    double d2 = (double) rand.nextFloat() * 2D * 3.1415899999999999D;
-                    int k1 = MathHelper.floor_double(d1 * Math.sin(d2) + (double) basePos[0] + d);
-                    int l1 = MathHelper.floor_double(d1 * Math.cos(d2) + (double) basePos[2] + d);
-                    int ai1[] = { k1, j, l1 };
-                    int ai2[] = { k1, j + leafDistanceLimit, l1 };
+                for (int j1 = 0; j1 < i; j1++) {
+                    if (rand.nextFloat() > 0.25F) {
+                        continue;
+                    }
+
+                    double d1 = field_873_j * (f * (rand.nextFloat() + 0.32800000000000001D));
+                    double d2 = rand.nextFloat() * 2D * Math.PI;
+                    int k1 = MathHelper.floor_double(d1 * Math.sin(d2) + basePos[0] + d);
+                    int l1 = MathHelper.floor_double(d1 * Math.cos(d2) + basePos[2] + d);
+                    int[] ai1 = { k1, j, l1 };
+                    int[] ai2 = { k1, j + leafDistanceLimit, l1 };
                     if (checkBlockLine(ai1, ai2) != -1) {
                         continue;
                     }
-                    int ai3[] = { basePos[0], basePos[1], basePos[2] };
-                    double d3 = Math.sqrt(
-                            Math.pow(Math.abs(basePos[0] - ai1[0]), 2D) + Math.pow(Math.abs(basePos[2] - ai1[2]), 2D));
-                    double d4 = d3 * field_874_i;
-                    if ((double) ai1[1] - d4 > (double) l) {
-                        ai3[1] = l;
-                    } else {
-                        ai3[1] = (int) ((double) ai1[1] - d4);
+
+                    double distance = Math.sqrt(Math.pow(basePos[0] - k1, 2D) + Math.pow(basePos[2] - l1, 2D));
+                    double d3 = distance * field_874_i;
+                    int leafBaseY = (int) (ai1[1] - d3);
+
+                    if (leafBaseY > l) {
+                        leafBaseY = l;
                     }
+
+                    int[] ai3 = { basePos[0], basePos[1], basePos[2] };
+                    ai3[1] = leafBaseY;
                     if (checkBlockLine(ai3, ai1) == -1) {
                         ai[k][0] = k1;
                         ai[k][1] = j;
                         ai[k][2] = l1;
-                        ai[k][3] = ai3[1];
+                        ai[k][3] = leafBaseY;
                         k++;
                     }
                 }
-
-                j--;
-                i1--;
             }
+            j--;
+            i1--;
         }
+
         leafNodes = new int[k][4];
         System.arraycopy(ai, 0, leafNodes, 0, k);
     }
-
-    void func_523_a(int i, int j, int k, float f, byte byte0, Block l) {
-        int i1 = (int) ((double) f + 0.61799999999999999D);
-        byte byte1 = otherCoordPairs[byte0];
-        byte byte2 = otherCoordPairs[byte0 + 3];
-        int ai[] = { i, j, k };
-        int ai1[] = { 0, 0, 0 };
-        int j1 = -i1;
-        int k1 = -i1;
-        ai1[byte0] = ai[byte0];
-        for (; j1 <= i1; j1++) {
+    // todo fix cascading worldgens caused by  Block block = worldObj.getBlock(ai1[0], ai1[1], ai1[2]);
+    void func_523_a(int i, int j, int k, float f, Block l) {
+        int i1 = (int) (f + 0.61799999999999999D);
+        byte byte1 = otherCoordPairs[1];
+        byte byte2 = otherCoordPairs[1 + 3];
+        int[] ai = { i, j, k };
+        int[] ai1 = { 0, 0, 0 };
+        ai1[1] = ai[1];
+        for (int j1 = -i1; j1 <= i1; j1++) {
             ai1[byte1] = ai[byte1] + j1;
-            for (int l1 = -i1; l1 <= i1;) {
-                double d = Math
-                        .sqrt(Math.pow((double) Math.abs(j1) + 0.5D, 2D) + Math.pow((double) Math.abs(l1) + 0.5D, 2D));
-                if (d > (double) f) {
-                    l1++;
-                } else {
+            for (int l1 = -i1; l1 <= i1; l1++) {
+                double d = Math.sqrt(Math.pow(Math.abs(j1) + 0.5D, 2D) + Math.pow(Math.abs(l1) + 0.5D, 2D));
+                if (d <= f) {
                     ai1[byte2] = ai[byte2] + l1;
-                    Block i2 = worldObj.getBlock(ai1[0], ai1[1], ai1[2]);
-                    if (i2 != Blocks.air && i2 != Blocks.leaves) {
-                        l1++;
-                    } else {
+                    Block block = worldObj.getBlock(ai1[0], ai1[1], ai1[2]);
+                    if (block == Blocks.air || block == Blocks.leaves) {
                         setBlockAndNotifyAdequately(worldObj, ai1[0], ai1[1], ai1[2], l, 0);
-                        l1++;
                     }
                 }
             }
@@ -1807,11 +1802,11 @@ public class RedwoodTreeGen extends WorldGenerator {
     }
 
     float func_528_a(int i) {
-        if ((double) i < (double) (float) heightLimit * 0.29999999999999999D) {
+        if (i < heightLimit * 0.29999999999999999D) {
             return -1.618F;
         }
-        float f = (float) heightLimit / 2.0F;
-        float f1 = (float) heightLimit / 2.0F - (float) i;
+        float f = heightLimit / 2.0F;
+        float f1 = heightLimit / 2.0F - i;
         float f2;
         if (f1 == 0.0F) {
             f2 = f;
@@ -1836,12 +1831,12 @@ public class RedwoodTreeGen extends WorldGenerator {
         int l = y;
         for (int i1 = y + leafDistanceLimit; l < i1; l++) {
             float f = func_526_b(l - y);
-            func_523_a(x, l, z, f, (byte) 1, NContent.floraLeaves);
+            func_523_a(x, l, z, f, NContent.floraLeaves);
         }
     }
 
-    void placeBlockLine(int ai[], int ai1[], Block i) {
-        int ai2[] = { 0, 0, 0 };
+    void placeBlockLine(int[] ai, int[] ai1, Block i) {
+        int[] ai2 = { 0, 0, 0 };
         byte byte0 = 0;
         int j = 0;
         for (; byte0 < 3; byte0++) {
@@ -1864,36 +1859,36 @@ public class RedwoodTreeGen extends WorldGenerator {
         }
         double d = (double) ai2[byte1] / (double) ai2[j];
         double d1 = (double) ai2[byte2] / (double) ai2[j];
-        int ai3[] = { 0, 0, 0 };
+        int[] ai3 = { 0, 0, 0 };
         int k = 0;
         for (int l = ai2[j] + byte3; k != l; k += byte3) {
-            ai3[j] = MathHelper.floor_double((double) (ai[j] + k) + 0.5D);
-            ai3[byte1] = MathHelper.floor_double((double) ai[byte1] + (double) k * d + 0.5D);
-            ai3[byte2] = MathHelper.floor_double((double) ai[byte2] + (double) k * d1 + 0.5D);
+            ai3[j] = MathHelper.floor_double((ai[j] + k) + 0.5D);
+            ai3[byte1] = MathHelper.floor_double(ai[byte1] + k * d + 0.5D);
+            ai3[byte2] = MathHelper.floor_double(ai[byte2] + k * d1 + 0.5D);
             setBlockAndNotifyAdequately(worldObj, ai3[0], ai3[1], ai3[2], i, 0);
         }
     }
 
     void generateLeaves() {
-        for (int iter = 0; iter < this.leafNodes.length; iter++) {
-            int posX = this.leafNodes[iter][0];
-            int posY = this.leafNodes[iter][1];
-            int posZ = this.leafNodes[iter][2];
+        for (int[] leafNode : this.leafNodes) {
+            int posX = leafNode[0];
+            int posY = leafNode[1];
+            int posZ = leafNode[2];
             this.generateLeafNode(posX, posY, posZ);
         }
     }
 
     boolean leafNodeNeedsBase(int i) {
-        return (double) i >= (double) heightLimit * 0.20000000000000001D;
+        return i >= heightLimit * 0.20000000000000001D;
     }
 
     void generateLeafNodeBases() {
         int i = 0;
         int j = leafNodes.length;
-        int ai[] = { basePos[0], basePos[1], basePos[2] };
+        int[] ai = { basePos[0], basePos[1], basePos[2] };
         for (; i < j; i++) {
-            int ai1[] = leafNodes[i];
-            int ai2[] = { ai1[0], ai1[1], ai1[2] };
+            int[] ai1 = leafNodes[i];
+            int[] ai2 = { ai1[0], ai1[1], ai1[2] };
             ai[1] = ai1[3];
             int k = ai[1] - basePos[1];
             if (leafNodeNeedsBase(k)) {
@@ -1902,10 +1897,11 @@ public class RedwoodTreeGen extends WorldGenerator {
         }
     }
 
-    int checkBlockLine(int ai[], int ai1[]) {
-        int ai2[] = { 0, 0, 0 };
+    int checkBlockLine(int[] ai, int[] ai1) {
+        int[] ai2 = { 0, 0, 0 };
         byte byte0 = 0;
         int i = 0;
+
         for (; byte0 < 3; byte0++) {
             ai2[byte0] = ai1[byte0] - ai[byte0];
             if (Math.abs(ai2[byte0]) > Math.abs(ai2[i])) {
@@ -1916,37 +1912,64 @@ public class RedwoodTreeGen extends WorldGenerator {
         if (ai2[i] == 0) {
             return -1;
         }
+
         byte byte1 = otherCoordPairs[i];
         byte byte2 = otherCoordPairs[i + 3];
-        byte byte3;
-        if (ai2[i] > 0) {
-            byte3 = 1;
-        } else {
-            byte3 = -1;
-        }
+        byte byte3 = (byte) ((ai2[i] > 0) ? 1 : -1);
         double d = (double) ai2[byte1] / (double) ai2[i];
         double d1 = (double) ai2[byte2] / (double) ai2[i];
-        int ai3[] = { 0, 0, 0 };
+        int[] ai3 = { 0, 0, 0 };
         int j = 0;
         int k = ai2[i] + byte3;
+
+        int initialChunkX = ai[0] >> 4;
+        int initialChunkZ = ai[2] >> 4;
+
         do {
             if (j == k) {
                 break;
             }
+
             ai3[i] = ai[i] + j;
-            ai3[byte1] = MathHelper.floor_double((double) ai[byte1] + (double) j * d);
-            ai3[byte2] = MathHelper.floor_double((double) ai[byte2] + (double) j * d1);
-            Block l = worldObj.getBlock(ai3[0], ai3[1], ai3[2]);
-            if (l != Blocks.air && l != Blocks.leaves) {
+            ai3[byte1] = MathHelper.floor_double(ai[byte1] + j * d);
+            ai3[byte2] = MathHelper.floor_double(ai[byte2] + j * d1);
+
+            int currentChunkX = ai3[0] >> 4;
+            int currentChunkZ = ai3[2] >> 4;
+
+            if (currentChunkX != initialChunkX || currentChunkZ != initialChunkZ) {
                 break;
             }
+
+            if (!isEmptyBlock(worldObj, ai3[0], ai3[1], ai3[2])) {
+                break;
+            }
+
             j += byte3;
         } while (true);
+
         if (j == k) {
             return -1;
         } else {
             return Math.abs(j);
         }
+    }
+
+    boolean isEmptyBlock(World world, int x, int y, int z) {
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
+
+        int localX = x & 15;
+        int localZ = z & 15;
+
+        int heightMap = world.getHeightValue(localX, localZ);
+
+        if (y >= 0 && y <= heightMap) {
+            Block block = world.getBlock(localX + (chunkX << 4), y, localZ + (chunkZ << 4));
+            return block.isAir(world, localX + (chunkX << 4), y, localZ + (chunkZ << 4));
+        }
+
+        return false;
     }
     /*
      * Unused? - jss2a98aj boolean validTreeLocation() { int ai[] = { basePos[0], basePos[1], basePos[2] }; int ai1[] =

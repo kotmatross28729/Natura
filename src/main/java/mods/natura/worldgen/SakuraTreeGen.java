@@ -7,6 +7,7 @@ import net.minecraft.block.BlockSapling;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -75,24 +76,24 @@ public class SakuraTreeGen extends WorldGenAbstractTree {
                 --i1;
             } else {
                 for (double d0 = 0.5D; j1 < i; ++j1) {
-                    double d1 = this.scaleWidth * (double) f * ((double) this.rand.nextFloat() + 0.328D);
-                    double d2 = (double) this.rand.nextFloat() * 2.0D * Math.PI;
-                    int k1 = MathHelper.floor_double(d1 * Math.sin(d2) + (double) this.basePos[0] + d0);
-                    int l1 = MathHelper.floor_double(d1 * Math.cos(d2) + (double) this.basePos[2] + d0);
+                    double d1 = this.scaleWidth * f * (this.rand.nextFloat() + 0.328D);
+                    double d2 = this.rand.nextFloat() * 2.0D * Math.PI;
+                    int k1 = MathHelper.floor_double(d1 * Math.sin(d2) + this.basePos[0] + d0);
+                    int l1 = MathHelper.floor_double(d1 * Math.cos(d2) + this.basePos[2] + d0);
                     int[] aint1 = new int[] { k1, j, l1 };
                     int[] aint2 = new int[] { k1, j + this.leafDistanceLimit, l1 };
 
                     if (this.checkBlockLine(aint1, aint2) == -1) {
                         int[] aint3 = new int[] { this.basePos[0], this.basePos[1], this.basePos[2] };
                         double d3 = Math.sqrt(
-                                Math.pow((double) Math.abs(this.basePos[0] - aint1[0]), 2.0D)
-                                        + Math.pow((double) Math.abs(this.basePos[2] - aint1[2]), 2.0D));
+                                Math.pow(Math.abs(this.basePos[0] - aint1[0]), 2.0D)
+                                        + Math.pow(Math.abs(this.basePos[2] - aint1[2]), 2.0D));
                         double d4 = d3 * this.branchSlope;
 
-                        if ((double) aint1[1] - d4 > (double) l) {
+                        if (aint1[1] - d4 > l) {
                             aint3[1] = l;
                         } else {
-                            aint3[1] = (int) ((double) aint1[1] - d4);
+                            aint3[1] = (int) (aint1[1] - d4);
                         }
 
                         if (this.checkBlockLine(aint3, aint1) == -1) {
@@ -115,7 +116,15 @@ public class SakuraTreeGen extends WorldGenAbstractTree {
     }
 
     void func_150529_a(int x, int y, int z, float p_150529_4_, byte p_150529_5_, Block block) {
-        int l = (int) ((double) p_150529_4_ + 0.618D);
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
+
+        Chunk chunk = worldObj.getChunkFromChunkCoords(chunkX, chunkZ);
+
+        if(!chunk.isChunkLoaded) {
+            return;
+        }
+        int l = (int) (p_150529_4_ + 0.618D);
         byte b1 = otherCoordPairs[p_150529_5_];
         byte b2 = otherCoordPairs[p_150529_5_ + 3];
         int[] aint = new int[] { x, y, z };
@@ -129,41 +138,44 @@ public class SakuraTreeGen extends WorldGenAbstractTree {
             j1 = -l;
 
             while (j1 <= l) {
-                double d0 = Math.pow((double) Math.abs(i1) + 0.5D, 2.0D) + Math.pow((double) Math.abs(j1) + 0.5D, 2.0D);
+                double d0 = Math.pow(Math.abs(i1) + 0.5D, 2.0D) + Math.pow(Math.abs(j1) + 0.5D, 2.0D);
 
-                if (d0 > (double) (p_150529_4_ * p_150529_4_)) {
-                    ++j1;
-                } else {
+                if (!(d0 > (p_150529_4_ * p_150529_4_))) {
                     aint1[b2] = aint[b2] + j1;
                     coordinatesToChange[l + i1] = true;
-                    ++j1;
                 }
+                ++j1;
             }
         }
 
         for (int i = 0; i < coordinatesToChange.length; i++) {
-            if (coordinatesToChange[i]) {
-                int coordinateX = aint[0] + otherCoordPairs[p_150529_5_] * i;
+
+            int coordinateX = aint[0] + otherCoordPairs[p_150529_5_] * i;
+            int coordinateZ = aint[2] + otherCoordPairs[p_150529_5_ + 3] * i;
+
+            if((coordinateX >> 4) == chunkX && (coordinateZ >> 4) == chunkZ) {
+
                 int coordinateY = aint[1];
-                int coordinateZ = aint[2] + otherCoordPairs[p_150529_5_ + 3] * i;
 
-                Block block1 = this.worldObj.getBlock(coordinateX, coordinateY, coordinateZ);
-                boolean isAir = block1.isAir(worldObj, coordinateX, coordinateY, coordinateZ);
-                boolean isLeaves = block1.isLeaves(worldObj, coordinateX, coordinateY, coordinateZ);
+                if (worldObj.getChunkFromBlockCoords(coordinateX, coordinateZ) == chunk) {
+                    Block block1 = this.worldObj.getBlock(coordinateX, coordinateY, coordinateZ);
+                    boolean isAir = block1.isAir(worldObj, coordinateX, coordinateY, coordinateZ);
+                    boolean isLeaves = block1.isLeaves(worldObj, coordinateX, coordinateY, coordinateZ);
 
-                if (!isAir && !isLeaves) {
-                    worldObj.setBlock(coordinateX, coordinateY, coordinateZ, block, metaLeaves, 2);
+                    if (!isAir && !isLeaves) {
+                        worldObj.setBlock(coordinateX, coordinateY, coordinateZ, block, metaLeaves, 2);
+                    }
                 }
             }
         }
     }
 
     float layerSize(int par1) {
-        if ((double) par1 < (double) ((float) this.heightLimit) * 0.3D) {
+        if (par1 < (this.heightLimit) * 0.3D) {
             return -1.618F;
         } else {
-            float f = (float) this.heightLimit / 2.0F;
-            float f1 = (float) this.heightLimit / 2.0F - (float) par1;
+            float f = this.heightLimit / 2.0F;
+            float f1 = this.heightLimit / 2.0F - par1;
             float f2;
 
             if (f1 == 0.0F) {
@@ -171,7 +183,7 @@ public class SakuraTreeGen extends WorldGenAbstractTree {
             } else if (Math.abs(f1) >= f) {
                 f2 = 0.0F;
             } else {
-                f2 = (float) Math.sqrt(Math.pow((double) Math.abs(f), 2.0D) - Math.pow((double) Math.abs(f1), 2.0D));
+                f2 = (float) Math.sqrt(Math.pow(Math.abs(f), 2.0D) - Math.pow(Math.abs(f1), 2.0D));
             }
 
             f2 *= 0.5F;

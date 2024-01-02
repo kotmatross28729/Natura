@@ -182,13 +182,23 @@ public class NLeaves extends BlockLeaves {
         return this.damageDropped(par1World.getBlockMetadata(par2, par3, par4)) % 3;
     }
 
+    int cachedMeta;
+
     @Override
     public int getLightOpacity(IBlockAccess world, int x, int y, int z) {
-        int meta = world.getBlockMetadata(x, y, z) % 4;
+
+        if(cachedMeta == -1) {
+            cachedMeta = world.getBlockMetadata(x, y, z) % 4;
+        }
+
+        int meta = cachedMeta;
+
         if (meta == 0) {
             return 255;
         }
+
         return super.getLightOpacity(world, x, y, z);
+
     }
 
     @Override

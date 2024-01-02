@@ -194,13 +194,18 @@ public class BaseCropWorldgen implements IWorldGenerator {
 
         int maxTries = 10;
 
-        for (int tries = 0; tries < maxTries; tries++) {
-            int i1 = (x + random.nextInt(8)) - random.nextInt(8);
-            int j1 = (y + random.nextInt(8)) - random.nextInt(8);
-            int k1 = (z + random.nextInt(8)) - random.nextInt(8);
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
 
-            if (world.getChunkFromBlockCoords(i1, k1) == chunk && world.isAirBlock(i1, j1, k1) && Blocks.yellow_flower.canBlockStay(world, i1, j1, k1)) {
-                world.setBlock(i1, j1, k1, NContent.bluebells, 0, 2);
+        for (int tries = 0; tries < maxTries; tries++) {
+            int i1 = x + random.nextInt(8) - random.nextInt(8);
+            int j1 = y + random.nextInt(8) - random.nextInt(8);
+            int k1 = z + random.nextInt(8) - random.nextInt(8);
+
+            if ((i1 >> 4) == chunkX && (k1 >> 4) == chunkZ) {
+                if (world.isAirBlock(i1, j1, k1) && Blocks.yellow_flower.canBlockStay(world, i1, j1, k1)) {
+                    world.setBlock(i1, j1, k1, NContent.bluebells, 0, 2);
+                }
             }
         }
         return true;
