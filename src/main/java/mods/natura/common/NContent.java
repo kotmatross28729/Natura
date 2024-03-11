@@ -297,10 +297,10 @@ public class NContent implements IFuelHandler {
         GameRegistry.registerBlock(floraLeaves, NLeavesItem.class, "floraleaves");
         floraLeavesNoColor = (NLeaves) new NLeavesNocolor().setBlockName("natura.leavesnocolor");
         GameRegistry.registerBlock(floraLeavesNoColor, NoColorLeavesItem.class, "floraleavesnocolor");
-        rareLeaves = (NLeaves) new OverworldLeaves().setBlockName("RareLeaves");
-        GameRegistry.registerBlock(rareLeaves, OverworldLeavesItem.class, "Rare Leaves");
-        darkLeaves = (NLeaves) new NLeavesDark().setBlockName("Darkleaves");
-        GameRegistry.registerBlock(darkLeaves, NLeavesDarkItem.class, "Dark Leaves");
+        rareLeaves = (NLeaves) new OverworldLeaves().setBlockName("natura.rareleaves");
+        GameRegistry.registerBlock(rareLeaves, OverworldLeavesItem.class, "rareleaves");
+        darkLeaves = (NLeaves) new NLeavesDark().setBlockName("natura.darkleaves");
+        GameRegistry.registerBlock(darkLeaves, NLeavesDarkItem.class, "darkleaves");
 
         // Wooden Planks
         planks = new Planks().setBlockName("natura.planks");
@@ -1715,8 +1715,8 @@ public class NContent implements IFuelHandler {
         }
 
         // Saplings
-        OreDictionary.registerOre("treeSapling", new ItemStack(rareSapling, 1, OreDictionary.WILDCARD_VALUE));
-        OreDictionary.registerOre("treeSapling", new ItemStack(floraSapling, 1, OreDictionary.WILDCARD_VALUE));
+        for (int i = 0; i < 5; i++) OreDictionary.registerOre("treeSapling", new ItemStack(rareSapling, 1, i));
+        for (int i = 0; i < 8; i++) OreDictionary.registerOre("treeSapling", new ItemStack(floraSapling, 1, i));
 
         // Logs
         OreDictionary.registerOre("logWood", new ItemStack(tree, 1, OreDictionary.WILDCARD_VALUE));
