@@ -268,8 +268,8 @@ public class NContent implements IFuelHandler {
         GameRegistry.registerBlock(cloud, CloudItem.class, "Cloud");
 
         // Saplings
-        rareSapling = (OverworldSapling) new OverworldSapling().setBlockName("RareSapling");
-        GameRegistry.registerBlock(rareSapling, OverworldSaplingItem.class, "Rare Sapling");
+        rareSapling = (OverworldSapling) new OverworldSapling().setBlockName("natura.raresapling");
+        GameRegistry.registerBlock(rareSapling, OverworldSaplingItem.class, "raresapling");
         floraSapling = (NSaplingBlock) new NSaplingBlock().setBlockName("natura.sapling");
         GameRegistry.registerBlock(floraSapling, NSaplingItem.class, "florasapling");
 
@@ -282,10 +282,10 @@ public class NContent implements IFuelHandler {
         GameRegistry.registerBlock(willow, WillowItem.class, "willow");
         bloodwood = new LogTwoxTwo(8f, Material.wood).setBlockName("bloodwood");
         GameRegistry.registerBlock(bloodwood, LogTwoxTwoItem.class, "bloodwood");
-        rareTree = new OverworldTreeBlock().setBlockName("RareTree");
-        GameRegistry.registerBlock(rareTree, OverworldTreeItem.class, "Rare Tree");
-        darkTree = new DarkTreeBlock().setBlockName("Darktree");
-        GameRegistry.registerBlock(darkTree, DarkTreeItem.class, "Dark Tree");
+        rareTree = new OverworldTreeBlock().setBlockName("natura.raretree");
+        GameRegistry.registerBlock(rareTree, OverworldTreeItem.class, "raretree");
+        darkTree = new DarkTreeBlock().setBlockName("natura.darktree");
+        GameRegistry.registerBlock(darkTree, DarkTreeItem.class, "darktree");
         tree.setHarvestLevel("axe", -1);
         redwood.setHarvestLevel("axe", -1);
         bloodwood.setHarvestLevel("axe", 2);
