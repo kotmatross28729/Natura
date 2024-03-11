@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 
 import cpw.mods.fml.common.IWorldGenerator;
@@ -138,37 +139,73 @@ public class BaseCropWorldgen implements IWorldGenerator {
     }
 
     public boolean generateBarley(World world, Random random, int x, int y, int z) {
-        for (int tries = 0; tries < 64; tries++) {
-            int i1 = (x + random.nextInt(8)) - random.nextInt(8);
-            int j1 = (y + random.nextInt(4)) - random.nextInt(4);
-            int k1 = (z + random.nextInt(8)) - random.nextInt(8);
+        Chunk chunk = world.getChunkFromChunkCoords(x >> 4, z >> 4);
+        if (!chunk.isChunkLoaded) {
+            return false;
+        }
+
+        int maxTries = 8;
+
+        int chunkX = chunk.xPosition * 16;
+        int chunkZ = chunk.zPosition * 16;
+
+        for (int attempts = 0; attempts < maxTries; attempts++) {
+            int i1 = chunkX + random.nextInt(16);
+            int j1 = y + random.nextInt(4);
+            int k1 = chunkZ + random.nextInt(16);
+
             if (world.isAirBlock(i1, j1, k1) && Blocks.yellow_flower.canBlockStay(world, i1, j1, k1)) {
                 world.setBlock(i1, j1, k1, NContent.crops, 3, 2);
             }
         }
-
         return true;
     }
 
     public boolean generateCotton(World world, Random random, int x, int y, int z) {
-        for (int tries = 0; tries < 64; tries++) {
-            int i1 = (x + random.nextInt(8)) - random.nextInt(8);
-            int j1 = (y + random.nextInt(4)) - random.nextInt(4);
-            int k1 = (z + random.nextInt(8)) - random.nextInt(8);
-            if (world.isAirBlock(i1, j1, k1) && Blocks.yellow_flower.canBlockStay(world, i1, j1, k1)) {
-                world.setBlock(i1, j1, k1, NContent.crops, 8, 2);
+        Chunk chunk = world.getChunkFromChunkCoords(x >> 4, z >> 4);
+        if (!chunk.isChunkLoaded) {
+            return false;
+        }
+
+        int maxTries = 8;
+
+        int chunkX = chunk.xPosition << 4;
+        int chunkZ = chunk.zPosition << 4;
+
+        for (int tries = 0; tries < maxTries; tries++) {
+            int i1 = chunkX + 8 - random.nextInt(16);
+            int j1 = y + random.nextInt(4) - random.nextInt(4);
+            int k1 = chunkZ + 8 - random.nextInt(16);
+
+            if (i1 >= chunkX && i1 < chunkX + 16 && k1 >= chunkZ && k1 < chunkZ + 16) {
+                if (world.isAirBlock(i1, j1, k1) && Blocks.yellow_flower.canBlockStay(world, i1, j1, k1)) {
+                    world.setBlock(i1, j1, k1, NContent.crops, 8, 2);
+                }
             }
         }
         return true;
     }
 
     public boolean generateBluebells(World world, Random random, int x, int y, int z) {
-        for (int tries = 0; tries < 40; tries++) {
-            int i1 = (x + random.nextInt(8)) - random.nextInt(8);
-            int j1 = (y + random.nextInt(8)) - random.nextInt(8);
-            int k1 = (z + random.nextInt(8)) - random.nextInt(8);
-            if (world.isAirBlock(i1, j1, k1) && Blocks.yellow_flower.canBlockStay(world, i1, j1, k1)) {
-                world.setBlock(i1, j1, k1, NContent.bluebells, 0, 2);
+        Chunk chunk = world.getChunkFromChunkCoords(x >> 4, z >> 4);
+        if (!chunk.isChunkLoaded) {
+            return false;
+        }
+
+        int maxTries = 10;
+
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
+
+        for (int tries = 0; tries < maxTries; tries++) {
+            int i1 = x + random.nextInt(8) - random.nextInt(8);
+            int j1 = y + random.nextInt(8) - random.nextInt(8);
+            int k1 = z + random.nextInt(8) - random.nextInt(8);
+
+            if ((i1 >> 4) == chunkX && (k1 >> 4) == chunkZ) {
+                if (world.isAirBlock(i1, j1, k1) && Blocks.yellow_flower.canBlockStay(world, i1, j1, k1)) {
+                    world.setBlock(i1, j1, k1, NContent.bluebells, 0, 2);
+                }
             }
         }
         return true;

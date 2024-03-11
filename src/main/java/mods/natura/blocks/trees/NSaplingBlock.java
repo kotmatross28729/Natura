@@ -178,7 +178,7 @@ public class NSaplingBlock extends BlockSapling {
         if (!net.minecraftforge.event.terraingen.TerrainGen.saplingGrowTree(world, random, x, y, z)) return;
         int md = world.getBlockMetadata(x, y, z) % 8;
         world.setBlock(x, y, z, Blocks.air);
-        WorldGenerator obj = null;
+        WorldGenerator obj;
 
         if (md == 1) obj = new EucalyptusTreeGenShort(0, 1);
         else if (md == 2) obj = new BushTreeGen(true, 2, 3, 2);

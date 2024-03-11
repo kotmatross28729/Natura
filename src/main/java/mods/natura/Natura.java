@@ -164,25 +164,33 @@ public class Natura {
 
     private void imcHandler() {
         List<FMLInterModComms.IMCMessage> imc = FMLInterModComms.fetchRuntimeMessages(this);
-        if (imc != null && !imc.isEmpty()) {
-            for (FMLInterModComms.IMCMessage message : imc) {
-                try {
-                    if (message.key.equalsIgnoreCase("set-worldgen-overrides") && message.isNBTMessage()) {
-                        NBTTagCompound tag = message.getNBTValue();
-                        int[] dimensions = tag.getIntArray("dimensions");
-                        int[] settings = tag.getIntArray("settings");
-                        if (dimensions == null || settings == null || dimensions.length != settings.length) {
-                            FMLLog.warning("Invalid Natura IMC format, mismatched array lengths");
-                            return;
-                        }
-                        synchronized (dimensionWorldgenOverrides) {
-                            for (int i = 0; i < dimensions.length; i++) {
-                                dimensionWorldgenOverrides.put(dimensions[i], settings[i]);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    FMLLog.warning("Exception while handling a Natura IMC message `{}`", message.key, e);
+        if (imc == null || imc.isEmpty()) {
+            return;
+        }
+
+        for (FMLInterModComms.IMCMessage message : imc) {
+            try {
+                handleImcMessage(message);
+            } catch (Exception e) {
+                FMLLog.warning("Exception while handling a Natura IMC message {}", message.key, e);
+            }
+        }
+    }
+
+    private void handleImcMessage(FMLInterModComms.IMCMessage message) {
+        if (message.key.equalsIgnoreCase("set-worldgen-overrides") && message.isNBTMessage()) {
+            NBTTagCompound tag = message.getNBTValue();
+            int[] dimensions = tag.getIntArray("dimensions");
+            int[] settings = tag.getIntArray("settings");
+
+            if (dimensions == null || settings == null || dimensions.length != settings.length) {
+                FMLLog.warning("Invalid Natura IMC format, mismatched array lengths");
+                return;
+            }
+
+            synchronized (dimensionWorldgenOverrides) {
+                for (int i = 0; i < dimensions.length; i++) {
+                    dimensionWorldgenOverrides.put(dimensions[i], settings[i]);
                 }
             }
         }

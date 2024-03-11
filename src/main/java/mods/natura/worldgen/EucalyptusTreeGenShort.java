@@ -5,6 +5,7 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
 import mods.natura.common.NContent;
@@ -20,6 +21,14 @@ public class EucalyptusTreeGenShort extends WorldGenerator {
     }
 
     public boolean generate(World world, Random random, int x, int y, int z) {
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
+
+        Chunk chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
+
+        if(!chunk.isChunkLoaded) {
+            return false;
+        }
         int height = findGround(world, x, y, z);
         return generateRandomTree(world, random, x, height, z);
     }

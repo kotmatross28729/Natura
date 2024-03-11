@@ -76,22 +76,22 @@ public class NLeaves extends BlockLeaves {
 
             if ((meta & 4) == 0) {
                 int range = 4;
-                if (world.checkChunksExist(x - range, y - range, z - range, x + range, y + range, z + range)) {
-                    // Do not decay leaves if can't check every possible support
-                    boolean nearbyTree = false;
+                // Do not decay leaves if can't check every possible support
+                boolean nearbyTree = false;
 
-                    for (int posX = x - range; posX <= x + range; posX++) {
-                        for (int posY = y - range; posY <= y + range; posY++) {
-                            for (int posZ = z - range; posZ <= z + range; posZ++) {
-                                Block block = world.getBlock(posX, posY, posZ);
-                                if (block != null && block.canSustainLeaves(world, posX, posY, posZ)) nearbyTree = true;
+                for (int offsetX = -range; offsetX <= range && !nearbyTree; offsetX++) {
+                    for (int offsetY = -range; offsetY <= range && !nearbyTree; offsetY++) {
+                        for (int offsetZ = -range; offsetZ <= range && !nearbyTree; offsetZ++) {
+                            Block block = world.getBlock(x + offsetX, y + offsetY, z + offsetZ);
+                            if (block != null && block.canSustainLeaves(world, x + offsetX, y + offsetY, z + offsetZ)) {
+                                nearbyTree = true;
                             }
                         }
                     }
+                }
 
-                    if (!nearbyTree) {
-                        this.removeLeaves(world, x, y, z);
-                    }
+                if (!nearbyTree) {
+                    this.removeLeaves(world, x, y, z);
                 }
             }
         }
@@ -182,13 +182,23 @@ public class NLeaves extends BlockLeaves {
         return this.damageDropped(par1World.getBlockMetadata(par2, par3, par4)) % 3;
     }
 
+    int cachedMeta;
+
     @Override
     public int getLightOpacity(IBlockAccess world, int x, int y, int z) {
-        int meta = world.getBlockMetadata(x, y, z) % 4;
+
+        if(cachedMeta == -1) {
+            cachedMeta = world.getBlockMetadata(x, y, z) % 4;
+        }
+
+        int meta = cachedMeta;
+
         if (meta == 0) {
             return 255;
         }
-        return super.getLightOpacity(world, x, y, z); // this.getLightOpacity(world, x, y, z);//lightOpacity[blockID];
+
+        return super.getLightOpacity(world, x, y, z);
+
     }
 
     @Override

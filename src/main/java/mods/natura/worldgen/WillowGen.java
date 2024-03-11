@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
 import mods.natura.common.NContent;
@@ -36,6 +37,14 @@ public class WillowGen extends WorldGenerator {
     }
 
     public boolean generate(World world, Random random, int x, int y, int z) {
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
+
+        Chunk chunk = world.getChunkFromChunkCoords(chunkX, chunkZ);
+
+        if(!chunk.isChunkLoaded) {
+            return false;
+        }
         if (seekHeight) {
             y = findGround(world, x, y, z);
             if (y == -1) return false;
@@ -93,14 +102,19 @@ public class WillowGen extends WorldGenerator {
 
                         for (l1 = x - k1; l1 <= x + k1; ++l1) {
                             i2 = l1 - x;
+                            int chunkXForL1 = l1 >> 4;
+                            if (chunkXForL1 == chunkX) {
+                                for (int k2 = z - k1; k2 <= z + k1; ++k2) {
+                                    int l2 = k2 - z;
+                                    int chunkZForK2 = k2 >> 4;
+                                    if (chunkZForK2 == chunkZ) {
+                                        block = world.getBlock(l1, j2, k2);
 
-                            for (int k2 = z - k1; k2 <= z + k1; ++k2) {
-                                int l2 = k2 - z;
-                                block = world.getBlock(l1, j2, k2);
-
-                                if ((Math.abs(i2) != k1 || Math.abs(l2) != k1 || random.nextInt(2) != 0 && j1 != 0)
-                                        && block.canBeReplacedByLeaves(world, l1, j2, k2)) {
-                                    this.setBlockAndNotifyAdequately(world, l1, j2, k2, NContent.floraLeavesNoColor, 3);
+                                        if ((Math.abs(i2) != k1 || Math.abs(l2) != k1 || random.nextInt(2) != 0 && j1 != 0)
+                                                && block.canBeReplacedByLeaves(world, l1, j2, k2)) {
+                                            world.setBlock(l1, j2, k2, NContent.floraLeavesNoColor, 3, 2);
+                                        }
+                                    }
                                 }
                             }
                         }
